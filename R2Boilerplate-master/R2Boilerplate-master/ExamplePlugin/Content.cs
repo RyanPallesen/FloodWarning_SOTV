@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using BepInEx.Configuration;
 using FloodWarning;
@@ -12,7 +13,6 @@ namespace Artifacts
     public class FW_Artifacts : IContentPackProvider
     {
         public static List<ArtifactDef> artifactDefs = new List<ArtifactDef>();
-
 
         public ContentPack contentPack = new ContentPack();
 
@@ -46,7 +46,7 @@ namespace Artifacts
 
         public static class Artifacts
         {
-            private static readonly List<ArtifactDef> tempDefs = null;
+            public static List<ArtifactStruct> structList = new List<ArtifactStruct>();
 
             public static void Create()
             {
@@ -56,19 +56,49 @@ namespace Artifacts
 
             private static void GenerateArtifacts()
             {
-                tempDefs.AddRange(Greed.GetDefs());
+                //Greed
+                structList.Add(new ArtifactStruct
+                {
+                    artifactName = "Greed",
+                    defs = Greed.GetDefs(),
+                    hookCallbacks = new List<Action> {Greed.DoHooks}
+                });
+
+                //True Dissonance
+                structList.Add(new ArtifactStruct
+                {
+                    artifactName = "True Dissonance",
+                    defs = TrueDissonance.GetDefs(),
+                    hookCallbacks = new List<Action> { TrueDissonance.DoHooks }
+                });
             }
 
             private static void ConfigArtifacts()
             {
-                foreach (ArtifactDef def in tempDefs)
+                foreach (ArtifactStruct def in structList)
                 {
+                    //Create a config entry for this artifact
                     ConfigEntry<bool> entry = Plugin.mainConfigFile.Bind("Artifacts",
-                        Language.GetString(def.nameToken) + "_Enabled", true,
-                        "Whether or not the artifact, " + Language.GetString(def.nameToken) + ", should be enabled");
+                        def.artifactName + "_Enabled", true,
+                        "Whether or not the artifact, " + def.artifactName + ", should be enabled");
 
-                    if (entry.Value) artifactDefs.Add(def);
+                    //If we are enabling this to be chosen.
+                    if (entry.Value)
+                    {
+                        //add any related artifact definitions
+                        foreach (ArtifactDef artifactDef in def.defs) artifactDefs.Add(artifactDef);
+
+                        //set up all hooks
+                        foreach (Action action in def.hookCallbacks) action.Invoke();
+                    }
                 }
+            }
+
+            public struct ArtifactStruct
+            {
+                public string artifactName;
+                public List<ArtifactDef> defs;
+                public List<Action> hookCallbacks;
             }
         }
     }
