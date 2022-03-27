@@ -71,6 +71,14 @@ namespace Artifacts
                     defs = TrueDissonance.GetDefs(),
                     hookCallbacks = new List<Action> { TrueDissonance.DoHooks }
                 });
+
+                //Atlas
+                structList.Add(new ArtifactStruct
+                {
+                    artifactName = "Atlas",
+                    defs = Atlas.GetDefs(),
+                    hookCallbacks = new List<Action> { Atlas.DoHooks }
+                });
             }
 
             private static void ConfigArtifacts()
