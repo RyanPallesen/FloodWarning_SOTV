@@ -36,12 +36,13 @@ namespace FloodWarning
         private static List<ArtifactDef> activeArtifacts;
 
         public static ConfigFile mainConfigFile;
-        public static List<ConfigEntry<bool>> MainConfigEntries { get; set; }
 
-        public static Dictionary<ArtifactDef, ConfigFile> perArtifactConfigs;
         //The Awake() method is run at the very start when the game is initialized.
         public void Awake()
         {
+            mainConfigFile = new ConfigFile(Paths.ConfigPath + "\\FloodWarning\\Artifacts.cfg", true);
+
+
             //Init our logging class so that we can properly log for debugging
             Log.Init(Logger);
             ContentManager.collectContentPackProviders += new ContentManager.CollectContentPackProvidersDelegate(ContentManager_collectContentPackProviders);
