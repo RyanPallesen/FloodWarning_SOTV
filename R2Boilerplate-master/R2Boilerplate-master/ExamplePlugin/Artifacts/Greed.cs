@@ -16,9 +16,9 @@ namespace FloodWarning.Artifacts
                 (
                     "Greed1",
                     "Artifact of Greed",
-                    "Increase chest and enemy spawns by 2x",
-                    Properties.Resources.Greed_Select,
-                    Properties.Resources.Greed_Deselect
+                    "Increase enemy and interactable spawns by 2x",
+                    Properties.Resources.GreedSelected,
+                    Properties.Resources.GreedDeselected
                 )
             );
 
@@ -26,9 +26,9 @@ namespace FloodWarning.Artifacts
                 (
                     "Greed2",
                     "Artifact of Greed",
-                    "Increase chest and enemy spawns by 2x",
-                    Properties.Resources.Greed_Select,
-                    Properties.Resources.Greed_Deselect
+                    "Increase enemy and interactable spawns by 2x",
+                    Properties.Resources.GreedSelected,
+                    Properties.Resources.GreedDeselected
                 )
             );
 
@@ -36,9 +36,9 @@ namespace FloodWarning.Artifacts
                 (
                     "Greed3",
                     "Artifact of Greed",
-                    "Increase chest and enemy spawns by 2x",
-                    Properties.Resources.Greed_Select,
-                    Properties.Resources.Greed_Deselect
+                    "Increase enemy and interactable spawns by 2x",
+                    Properties.Resources.GreedSelected,
+                    Properties.Resources.GreedDeselected
                 )
             );
 

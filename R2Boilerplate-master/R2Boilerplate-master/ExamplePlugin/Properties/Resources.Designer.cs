@@ -63,9 +63,9 @@ namespace FloodWarning.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] Greed_Deselect {
+        internal static byte[] AtlasDeselected {
             get {
-                object obj = ResourceManager.GetObject("Greed_Deselect", resourceCulture);
+                object obj = ResourceManager.GetObject("AtlasDeselected", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -73,9 +73,49 @@ namespace FloodWarning.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] Greed_Select {
+        internal static byte[] AtlasSelected {
             get {
-                object obj = ResourceManager.GetObject("Greed_Select", resourceCulture);
+                object obj = ResourceManager.GetObject("AtlasSelected", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] GreedDeselected {
+            get {
+                object obj = ResourceManager.GetObject("GreedDeselected", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] GreedSelected {
+            get {
+                object obj = ResourceManager.GetObject("GreedSelected", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] TrueDissonanceDeselected {
+            get {
+                object obj = ResourceManager.GetObject("TrueDissonanceDeselected", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] TrueDissonanceSelected {
+            get {
+                object obj = ResourceManager.GetObject("TrueDissonanceSelected", resourceCulture);
                 return ((byte[])(obj));
             }
         }

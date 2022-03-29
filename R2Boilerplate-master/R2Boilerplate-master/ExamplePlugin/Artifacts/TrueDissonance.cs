@@ -21,8 +21,8 @@ namespace FloodWarning.Artifacts
                     "True Dissonance",
                     "Artifact of True Dissonance",
                     "All entities can spawn on any stage.",
-                    Resources.Greed_Select,
-                    Resources.Greed_Deselect
+                    Resources.TrueDissonanceSelected,
+                    Resources.TrueDissonanceDeselected
                 )
             );
 
