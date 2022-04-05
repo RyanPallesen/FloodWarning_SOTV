@@ -46,7 +46,8 @@ namespace FloodWarning.Artifacts
         public static float GetArbitraryCreditValue(CharacterBody characterBody)
         {
             //Check to see if this is a survivor, as only survivors have preferred pods.
-            bool hasPreferredPodPrefab = characterBody.preferredPodPrefab != null;
+            bool isCharacter = characterBody.preferredPodPrefab != null;
+            isCharacter = characterBody.name.Contains("MonsterMaster") || isCharacter;
 
             //Health Calculation
             float baseHealth = characterBody.baseMaxHealth + characterBody.baseMaxShield +
@@ -64,7 +65,7 @@ namespace FloodWarning.Artifacts
             float bodyCredit = totalDPS / 8f + (totalHealth * 2);
 
             //survivors cost 25x, due to disproportionate health and damage values. Completely arbitrary.
-            bodyCredit *= hasPreferredPodPrefab ? 25 : 1;
+            bodyCredit *= isCharacter ? 25 : 1;
 
             //Mithrix costs 8x more, due to skills making up for other things.
             bodyCredit *= characterBody.name.Contains("Brother") ? 8 : 1;
@@ -98,7 +99,7 @@ namespace FloodWarning.Artifacts
                 foreach (GameObject master in ContentManager.masterPrefabs)
                 {
                     ConfigFile perBodyConfigFile =
-                        new ConfigFile(Paths.ConfigPath + "\\FloodWarning\\Artifacts\\TrueDissonance\\" + master.name,
+                        new ConfigFile(Paths.ConfigPath + "\\FloodWarning\\Artifacts\\TrueDissonance\\" + master.name + ".cfg",
                             true);
 
                     //Create a config entry for this characterMaster
@@ -137,10 +138,15 @@ namespace FloodWarning.Artifacts
                             "The weighting to spawn this creature");
                         weight = weightConfig.Value;
 
-                        //Create a config entry for the weight
+                        //Create a config entry for the forbiddenAsBoss
                         ConfigEntry<bool> forbiddenAsBoss = perBodyConfigFile.Bind("",
                             "forbiddenAsBoss", false,
                             "Whether or not this creature can be a teleporter boss");
+
+                        //Create a config entry for the noElites
+                        ConfigEntry<bool> noElites = perBodyConfigFile.Bind("",
+                            "noElites", false,
+                            "Whether or not this creature cannot be an elite");
 
                         CharacterSpawnCard characterSpawnCard = ScriptableObject.CreateInstance<CharacterSpawnCard>();
                         characterSpawnCard.name = "cscDISSONANCE" + master.name;
@@ -154,7 +160,7 @@ namespace FloodWarning.Artifacts
                         characterSpawnCard.directorCreditCost = Mathf.FloorToInt(bodyCredit);
                         characterSpawnCard.occupyPosition = false;
                         characterSpawnCard.loadout = new SerializableLoadout();
-                        characterSpawnCard.noElites = false;
+                        characterSpawnCard.noElites = noElites.Value;
                         characterSpawnCard.forbiddenAsBoss = forbiddenAsBoss.Value;
 
                         DirectorCard directorCard = new DirectorCard
