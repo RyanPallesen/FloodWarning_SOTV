@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using BepInEx;
+using BepInEx.Configuration;
 using R2API;
 using R2API.Utils;
 using RoR2;
@@ -41,33 +43,48 @@ namespace FloodWarning.Artifacts
         {
         }
 
-
-        public static List<object> GetAllOfType<T>()
+        public static float GetArbitraryCreditValue(CharacterBody characterBody)
         {
-            List<object> output = new List<object>();
+            //Check to see if this is a survivor, as only survivors have preferred pods.
+            bool hasPreferredPodPrefab = characterBody.preferredPodPrefab != null;
 
-            foreach (var item in Addressables.ResourceLocators)
-            foreach (var key in item.Keys)
-            {
-                var asset = Addressables.LoadAssetAsync<Object>(key).WaitForCompletion();
-                if (asset is T) output.Add(asset);
-            }
+            //Health Calculation
+            float baseHealth = characterBody.baseMaxHealth + characterBody.baseMaxShield +
+                               characterBody.baseArmor;
+            float levelHealth = characterBody.levelMaxHealth + characterBody.levelMaxShield +
+                                characterBody.levelArmor;
+            float totalHealth = baseHealth + levelHealth;
 
-            return output;
+            //DPS calculation
+            float baseDPS = characterBody.baseDamage * characterBody.baseAttackSpeed;
+            float levelDPS = characterBody.levelDamage + characterBody.levelAttackSpeed;
+            float totalDPS = baseDPS + levelDPS;
+
+            //The total cost of the character to spawn. Completely arbitrary.
+            float bodyCredit = totalDPS / 8f + (totalHealth * 2);
+
+            //survivors cost 25x, due to disproportionate health and damage values. Completely arbitrary.
+            bodyCredit *= hasPreferredPodPrefab ? 25 : 1;
+
+            //Mithrix costs 8x more, due to skills making up for other things.
+            bodyCredit *= characterBody.name.Contains("Brother") ? 8 : 1;
+
+            //Bring costs more in line with base game.
+            bodyCredit /= 12f;
+
+            return bodyCredit;
         }
 
-        public static List<object> GetAllWithComponent<T>()
+        public static int GetArbitraryWeightValue(float bodyCredit)
         {
-            List<object> output = new List<object>();
+            //Invert weights, makes game not wait for ages to spawn larger enemies, and favor hordes/beetles. Completely arbitrary.
+            int weight = 2000 - Mathf.Clamp((int)bodyCredit, 0, 2000);
+            //set weights 0-50
+            weight /= 40;
+            //Make it such that nothing has a weight of 0.
+            weight += 1;
 
-            foreach (var item in Addressables.ResourceLocators)
-            foreach (var key in item.Keys)
-            {
-                var asset = Addressables.LoadAssetAsync<Object>(key).WaitForCompletion();
-                if (asset is T) output.Add(asset);
-            }
-
-            return output;
+            return weight;
         }
 
         public static void DoHooks()
@@ -76,10 +93,25 @@ namespace FloodWarning.Artifacts
 
             MasterCatalog.Init += delegate(MasterCatalog.orig_Init orig)
             {
-                Log.LogInfo("Init begun");
                 orig();
 
                 foreach (GameObject master in ContentManager.masterPrefabs)
+                {
+                    ConfigFile perBodyConfigFile =
+                        new ConfigFile(Paths.ConfigPath + "\\FloodWarning\\Artifacts\\TrueDissonance\\" + master.name,
+                            true);
+
+                    //Create a config entry for this characterMaster
+                    ConfigEntry<bool> shouldSpawn = perBodyConfigFile.Bind("",
+                        "shouldSpawn", true,
+                        "Whether or not the creature, " + master.name + ", should spawn with true dissonance");
+
+                    //If we are enabling this to be chosen.
+                    if (!shouldSpawn.Value)
+                    {
+                        break;
+                    }
+
                     try
                     {
                         CharacterMaster innerMaster = master.GetComponent<CharacterMaster>();
@@ -88,41 +120,27 @@ namespace FloodWarning.Artifacts
                         if (!bodyPrefab) break;
 
                         CharacterBody characterBody = bodyPrefab.GetComponentInChildren<CharacterBody>();
-
                         if (!characterBody) break;
 
-                        //Check to see if this is a survivor, as only survivors have preferred pods.
-                        bool hasPreferredPodPrefab = characterBody.preferredPodPrefab != null;
+                        float bodyCredit = GetArbitraryCreditValue(characterBody);
 
-                        //Health Calculation
-                        float baseHealth = characterBody.baseMaxHealth + characterBody.baseMaxShield +
-                                           characterBody.baseArmor;
-                        float levelHealth = characterBody.levelMaxHealth + characterBody.levelMaxShield +
-                                            characterBody.levelArmor;
-                        float totalHealth = baseHealth + levelHealth;
+                        //Create a config entry for the credit cost
+                        ConfigEntry<float> bodyCreditConfig = perBodyConfigFile.Bind("",
+                            "bodyCredit", bodyCredit,
+                            "The cost for the director to spawn this creature");
+                        bodyCredit = bodyCreditConfig.Value;
 
-                        //DPS calculation
-                        float baseDPS = characterBody.baseDamage * characterBody.baseAttackSpeed;
-                        float levelDPS = characterBody.levelDamage + characterBody.levelAttackSpeed;
-                        float totalDPS = baseDPS + levelDPS;
+                        int weight = GetArbitraryWeightValue(bodyCredit);
+                        //Create a config entry for the weight
+                        ConfigEntry<int> weightConfig = perBodyConfigFile.Bind("",
+                            "weight", weight,
+                            "The weighting to spawn this creature");
+                        weight = weightConfig.Value;
 
-                        //The total cost of the character to spawn. Completely arbitrary.
-                        float bodyCredit = totalDPS / 8f + (totalHealth * 2);
-
-                        //survivors cost 25x, due to disproportionate health and damage values. Completely arbitrary.
-                        bodyCredit *= hasPreferredPodPrefab ? 25 : 1;
-                        bodyCredit *= characterBody.name.Contains("Brother") ? 8 : 1;
-
-                        //Invert weights, makes game not wait for ages to spawn larger enemies, and favor hordes/beetles. Completely arbitrary.
-                        int weight = 2000 - Mathf.Clamp((int)bodyCredit, 0, 2000);
-                        //set weights 0-50
-                        weight /= 40;
-                        //Make it such that nothing has a weight of 0.
-                        weight += 1;
-
-                        //Bring costs more in line with base game.
-                        bodyCredit /= 12f;
-
+                        //Create a config entry for the weight
+                        ConfigEntry<bool> forbiddenAsBoss = perBodyConfigFile.Bind("",
+                            "forbiddenAsBoss", false,
+                            "Whether or not this creature can be a teleporter boss");
 
                         CharacterSpawnCard characterSpawnCard = ScriptableObject.CreateInstance<CharacterSpawnCard>();
                         characterSpawnCard.name = "cscDISSONANCE" + master.name;
@@ -137,7 +155,7 @@ namespace FloodWarning.Artifacts
                         characterSpawnCard.occupyPosition = false;
                         characterSpawnCard.loadout = new SerializableLoadout();
                         characterSpawnCard.noElites = false;
-                        characterSpawnCard.forbiddenAsBoss = false;
+                        characterSpawnCard.forbiddenAsBoss = forbiddenAsBoss.Value;
 
                         DirectorCard directorCard = new DirectorCard
                         {
@@ -158,9 +176,6 @@ namespace FloodWarning.Artifacts
                         else
                             monsterCategory = DirectorAPI.MonsterCategory.Champions;
 
-                        //Survivor characters are always champions.
-                        if (hasPreferredPodPrefab) monsterCategory = DirectorAPI.MonsterCategory.Champions;
-
                         //Create the 'Card'
                         DirectorAPI.DirectorCardHolder monsterCard = new DirectorAPI.DirectorCardHolder
                         {
@@ -168,15 +183,14 @@ namespace FloodWarning.Artifacts
                             MonsterCategory = monsterCategory,
                             InteractableCategory = DirectorAPI.InteractableCategory.Invalid
                         };
-                        Log.LogInfo("\nNew Card Created: " + characterBody.name + "\n Category: " + monsterCategory +
-                                    "\nCredits: " + bodyCredit + "\nWeight: " + weight);
 
                         Run.Start += delegate(Run.orig_Start start, RoR2.Run self)
                         {
                             //Seems to be an issue with adding the same monster multiple times, so we need to guarantee a fresh list every run.
                             DirectorAPI.Helpers.RemoveExistingMonster(monsterCard.Card.spawnCard.name);
 
-                            if (RunArtifactManager.instance && RunArtifactManager.instance.IsArtifactEnabled(tempDefs[0]))
+                            if (RunArtifactManager.instance &&
+                                RunArtifactManager.instance.IsArtifactEnabled(tempDefs[0]))
                             {
                                 DirectorAPI.Helpers.AddNewMonster(monsterCard, true);
                             }
@@ -184,13 +198,14 @@ namespace FloodWarning.Artifacts
                             start(self);
                         };
 
-                        
+
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine(e);
+                        Console.WriteLine("True Dissonance unable to add character, " + master.name  + ", Error thrown:" + e);
                         throw;
                     }
+                }
             };
 
             SpawnCard.onSpawnedServerGlobal += delegate(SpawnCard.SpawnResult cardresult)
