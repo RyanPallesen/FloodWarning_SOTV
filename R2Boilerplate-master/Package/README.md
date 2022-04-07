@@ -5,6 +5,7 @@
 ## FW_Artifacts
 A grouping of new artifacts.
 To suggest a new idea, check out planned additions, or test experimental builds of the mod, please join our Flood Warning Discord server [HERE](https://discord.gg/TkKUkyq).
+If you want to add to the project, or become a contributer, contact RyanP#7652
 
 | Icon | Artifact | Effect |
 |:-|-|------|
@@ -18,6 +19,6 @@ To suggest a new idea, check out planned additions, or test experimental builds 
 
 V 2.0.0
 Recreate project from ground up after loss of files.
--Implement 3x Greed artifacts
+-Implement Greed x3
 -Implement True Dissonance
 -Implement Atlas
