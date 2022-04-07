@@ -79,6 +79,14 @@ namespace Artifacts
                     defs = Atlas.GetDefs(),
                     hookCallbacks = new List<Action> { Atlas.DoHooks }
                 });
+
+                //True Honor
+                structList.Add(new ArtifactStruct
+                {
+                    artifactName = "True Honor",
+                    defs = TrueHonor.GetDefs(),
+                    hookCallbacks = new List<Action> { TrueHonor.DoHooks }
+                });
             }
 
             private static void ConfigArtifacts()
