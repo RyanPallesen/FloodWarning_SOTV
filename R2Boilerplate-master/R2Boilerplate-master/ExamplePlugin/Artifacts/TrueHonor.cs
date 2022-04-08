@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using R2API.Utils;
 using RoR2;
 using RoR2.ContentManagement;
@@ -52,7 +51,7 @@ namespace FloodWarning.Artifacts
             On.RoR2.CombatDirector.Init += delegate(On.RoR2.CombatDirector.orig_Init orig)
             {
                 orig();
-                eliteTiers = typeof(On.RoR2.CombatDirector).GetFieldValue<CombatDirector.EliteTierDef[]>("eliteTiers");
+                eliteTiers = typeof(CombatDirector).GetFieldValue<CombatDirector.EliteTierDef[]>("eliteTiers");
             };
         }
 
@@ -60,7 +59,17 @@ namespace FloodWarning.Artifacts
         {
             if (characterBody == null) return;
 
-            if (!characterBody.isElite)
+            //todo: Config this.
+            float TrueHonorChance = 20;
+
+            //todo: Config this.
+            //How much the base cost should increase, in percent, for each elite modifier.
+            //100 is a 100% increase, meaning 2 elites cost 200% base cost, 3 for 300%.
+            float TrueHonorPerBuffMultiplier = 100f;
+
+            float perBuffMultiplier = TrueHonorPerBuffMultiplier / 100f;
+
+            if (Run.instance.spawnRng.nextNormalizedFloat * 100 > TrueHonorChance)
                 return;
 
             int eliteBuffs = GetTotalEliteBuffs(characterBody);
@@ -71,8 +80,9 @@ namespace FloodWarning.Artifacts
                 if (eliteDef && eliteDef.IsAvailable() && eliteDef.eliteEquipmentDef &&
                     eliteDef.eliteEquipmentDef.passiveBuffDef)
                 {
-                    //Treat card as 100% more expensive per buff, cost as normal otherwise.
-                    float eliteBuffCost = cardCost * (eliteBuffs + 1) * tierDef.costMultiplier;
+                    //Treat card as x% more expensive per buff, cost as normal otherwise.
+                    //Add +1 to get the cost for an additional buff.
+                    float eliteBuffCost = cardCost * (eliteBuffs * perBuffMultiplier + 1) * tierDef.costMultiplier;
 
                     if (eliteBuffCost > monsterCredit)
                     {
@@ -91,10 +101,10 @@ namespace FloodWarning.Artifacts
             int livingPlayerCount = Run.instance.livingPlayerCount;
 
             //Duplicate logic from RoR2 code.
-            healthBoostCoefficient *= Mathf.Pow(livingPlayerCount, 1f);
-            characterBody.inventory.GiveItem(RoR2Content.Items.BoostHp, Mathf.RoundToInt((healthBoostCoefficient - 1f) * 10f));
+            healthBoostCoefficient *= Mathf.Pow(livingPlayerCount, 2f);
+            characterBody.inventory.GiveItem(RoR2Content.Items.BoostHp, Mathf.RoundToInt(healthBoostCoefficient * 10f));
             characterBody.inventory.GiveItem(RoR2Content.Items.BoostDamage,
-                Mathf.RoundToInt((damageBoostCoefficient - 1f) * 10f));
+                Mathf.RoundToInt(damageBoostCoefficient * 10f));
         }
 
         public static int GetTotalEliteBuffs(CharacterBody characterBody)
