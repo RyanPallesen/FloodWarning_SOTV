@@ -81,12 +81,12 @@ namespace Artifacts
                 });
 
                 //True Honor
-                structList.Add(new ArtifactStruct
-                {
-                    artifactName = "True Honor",
-                    defs = TrueHonor.GetDefs(),
-                    hookCallbacks = new List<Action> { TrueHonor.DoHooks }
-                });
+                //structList.Add(new ArtifactStruct
+                //{
+                //    artifactName = "True Honor",
+                //    defs = TrueHonor.GetDefs(),
+                //    hookCallbacks = new List<Action> { TrueHonor.DoHooks }
+                //});
             }
 
             private static void ConfigArtifacts()

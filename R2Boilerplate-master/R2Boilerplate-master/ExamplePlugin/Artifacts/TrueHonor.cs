@@ -42,9 +42,13 @@ namespace FloodWarning.Artifacts
                     self.onSpawnedServer.AddListener(delegate(GameObject obj)
                     {
                         if (!NetworkServer.active) return;
-                        DirectorCard lastAttemptedMonsterCard = self.lastAttemptedMonsterCard;
+
+                        CharacterSpawnCard lastAttemptedMonsterCard = self.lastAttemptedMonsterCard.spawnCard as CharacterSpawnCard;
+
+                        if (lastAttemptedMonsterCard == null || lastAttemptedMonsterCard.noElites) return;
+
                         AddEliteTypesToBody(obj.GetComponentInChildren<CharacterMaster>().GetBody(),
-                            ref self.monsterCredit, lastAttemptedMonsterCard.cost);
+                            ref self.monsterCredit, lastAttemptedMonsterCard.directorCreditCost);
                     });
             };
 
@@ -59,15 +63,18 @@ namespace FloodWarning.Artifacts
         {
             if (characterBody == null) return;
 
-            //todo: Config this.
+            //TrueHonorLevelChance -> If the game can afford to apply another elite type, the chance to do so, default 25%
+            //TrueHonorLevelCumulative -> Adds to the TrueHonorLevelChance each time an elite is applied, default 10%
+
+            //TrueHonorProcChance -> Chance for this to run on any given enemy, default 20%
             float TrueHonorChance = 20;
 
             //todo: Config this.
             //How much the base cost should increase, in percent, for each elite modifier.
             //100 is a 100% increase, meaning 2 elites cost 200% base cost, 3 for 300%.
             float TrueHonorPerBuffMultiplier = 100f;
-
-            float perBuffMultiplier = TrueHonorPerBuffMultiplier / 100f;
+            //Turning this into 0-1f.
+            float perBuffCostMultiplier = TrueHonorPerBuffMultiplier / 100f;
 
             if (Run.instance.spawnRng.nextNormalizedFloat * 100 > TrueHonorChance)
                 return;
@@ -82,7 +89,7 @@ namespace FloodWarning.Artifacts
                 {
                     //Treat card as x% more expensive per buff, cost as normal otherwise.
                     //Add +1 to get the cost for an additional buff.
-                    float eliteBuffCost = cardCost * (eliteBuffs * perBuffMultiplier + 1) * tierDef.costMultiplier;
+                    float eliteBuffCost = cardCost * (eliteBuffs * perBuffCostMultiplier + 1) * tierDef.costMultiplier;
 
                     if (eliteBuffCost > monsterCredit)
                     {

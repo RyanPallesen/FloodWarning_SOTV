@@ -88,6 +88,9 @@ namespace FloodWarning.Artifacts
             return weight;
         }
 
+        private static List<DirectorAPI.DirectorCardHolder> trueDissonanceMonsters =
+            new List<DirectorAPI.DirectorCardHolder>();
+
         public static void DoHooks()
         {
             DoConfig();
@@ -98,6 +101,15 @@ namespace FloodWarning.Artifacts
 
                 foreach (GameObject master in ContentManager.masterPrefabs)
                 {
+                    Debug.Log(master.name);
+                }
+
+                foreach (GameObject master in ContentManager.masterPrefabs)
+                {
+
+                    if (master.name == "PlayerMaster")
+                        continue;
+
                     ConfigFile perBodyConfigFile =
                         new ConfigFile(Paths.ConfigPath + "\\FloodWarning\\Artifacts\\TrueDissonance\\" + master.name + ".cfg",
                             true);
@@ -110,7 +122,7 @@ namespace FloodWarning.Artifacts
                     //If we are enabling this to be chosen.
                     if (!shouldSpawn.Value)
                     {
-                        break;
+                        continue;
                     }
 
                     try
@@ -118,10 +130,10 @@ namespace FloodWarning.Artifacts
                         CharacterMaster innerMaster = master.GetComponent<CharacterMaster>();
 
                         GameObject bodyPrefab = innerMaster.bodyPrefab;
-                        if (!bodyPrefab) break;
+                        if (!bodyPrefab) continue;
 
                         CharacterBody characterBody = bodyPrefab.GetComponentInChildren<CharacterBody>();
-                        if (!characterBody) break;
+                        if (!characterBody) continue;
 
                         float bodyCredit = GetArbitraryCreditValue(characterBody);
 
@@ -189,20 +201,8 @@ namespace FloodWarning.Artifacts
                             MonsterCategory = monsterCategory,
                             InteractableCategory = DirectorAPI.InteractableCategory.Invalid
                         };
-
-                        Run.Start += delegate(Run.orig_Start start, RoR2.Run self)
-                        {
-                            //Seems to be an issue with adding the same monster multiple times, so we need to guarantee a fresh list every run.
-                            DirectorAPI.Helpers.RemoveExistingMonster(monsterCard.Card.spawnCard.name);
-
-                            if (RunArtifactManager.instance &&
-                                RunArtifactManager.instance.IsArtifactEnabled(tempDefs[0]))
-                            {
-                                DirectorAPI.Helpers.AddNewMonster(monsterCard, true);
-                            }
-
-                            start(self);
-                        };
+                        trueDissonanceMonsters.Add(monsterCard);
+                        
 
 
                     }
@@ -212,6 +212,23 @@ namespace FloodWarning.Artifacts
                         throw;
                     }
                 }
+            };
+
+            Run.Start += delegate (Run.orig_Start start, RoR2.Run self)
+            {
+                foreach (DirectorAPI.DirectorCardHolder monsterCard in trueDissonanceMonsters)
+                {
+                    //Seems to be an issue with adding the same monster multiple times, so we need to guarantee a fresh list every run.
+                    DirectorAPI.Helpers.RemoveExistingMonster(monsterCard.Card.spawnCard.name);
+
+                    if (RunArtifactManager.instance &&
+                        RunArtifactManager.instance.IsArtifactEnabled(tempDefs[0]))
+                    {
+                        DirectorAPI.Helpers.AddNewMonster(monsterCard, true);
+                    }
+                }
+
+                start(self);
             };
 
             SpawnCard.onSpawnedServerGlobal += delegate(SpawnCard.SpawnResult cardresult)
