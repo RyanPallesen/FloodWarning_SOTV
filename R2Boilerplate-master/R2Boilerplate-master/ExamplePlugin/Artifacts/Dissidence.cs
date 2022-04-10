@@ -21,7 +21,7 @@ namespace FloodWarning.Artifacts
                 (
                     "Dissidence",
                     "Artifact of Dissidence",
-                    "All enemies may be boss enemies, all enemies may be elite enemies.",
+                    "All enemies may be boss enemies and elite enemies.",
                     Resources.GreedSelected,
                     Resources.GreedDeselected
                 )

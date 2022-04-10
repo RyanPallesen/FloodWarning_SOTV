@@ -1,6 +1,6 @@
 # Flood Warning
 
-**Flood Warning is a group of projects, abbreviated to FW_[PROJECT].
+Flood Warning is a group of projects, abbreviated to FW_[PROJECT].
 
 ## FW_Artifacts
 A grouping of new artifacts.
@@ -16,6 +16,11 @@ If you want to add to the project, or become a contributer, contact RyanP#7652
 
 
 ### Changelog:
+
+V 2.0.1
+Fix issues with TrueDissonance, thanks to Fountainboy
+-Entities after PlayerMaster alphabetically could not be processed
+-Entities after any disabled entity alphabetically  could not be processed.
 
 V 2.0.0
 Recreate project from ground up after loss of files.
