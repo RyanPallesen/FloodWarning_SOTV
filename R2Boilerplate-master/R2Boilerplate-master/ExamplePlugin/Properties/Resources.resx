@@ -124,16 +124,34 @@
   <data name="AtlasSelected" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\atlasselected.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="DissidenceDeselected" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\DissidenceDeselected.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="DissidenceSelected" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\DissidenceSelected.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="GreedDeselected" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\greeddeselected.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="GreedSelected" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\greedselected.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="TrueDissidenceDeselected" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\TrueDissidenceDeselected.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="TrueDissidenceSelected" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\TrueDissidenceSelected.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="TrueDissonanceDeselected" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\truedissonancedeselected.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="TrueDissonanceSelected" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\truedissonanceselected.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="TrueHonorDeselected" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\TrueHonorDeselected.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="TrueHonorSelected" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\TrueHonorSelected.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
 </root>

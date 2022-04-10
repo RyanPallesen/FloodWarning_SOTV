@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using BepInEx;
+using BepInEx.Configuration;
 using R2API.Utils;
 using RoR2;
 using RoR2.ContentManagement;
@@ -10,8 +12,11 @@ namespace FloodWarning.Artifacts
 {
     internal class TrueHonor
     {
-        private static readonly List<ArtifactDef> tempDefs = new List<ArtifactDef>();
+        public static readonly List<ArtifactDef> tempDefs = new List<ArtifactDef>();
         public static CombatDirector.EliteTierDef[] eliteTiers;
+
+        private static readonly ConfigFile configFile =
+            new ConfigFile(Paths.ConfigPath + "\\FloodWarning\\Artifacts\\TrueHonor.cfg", true);
 
         public static List<ArtifactDef> GetDefs()
         {
@@ -20,8 +25,8 @@ namespace FloodWarning.Artifacts
                     "True Honor",
                     "Artifact of True Honor",
                     "Enemies may now have multiple elite types.",
-                    Resources.GreedSelected,
-                    Resources.GreedDeselected
+                    Resources.TrueHonorSelected,
+                    Resources.TrueHonorDeselected
                 )
             );
 
@@ -34,6 +39,8 @@ namespace FloodWarning.Artifacts
 
         public static void DoHooks()
         {
+            DoConfig();
+
             On.RoR2.CombatDirector.Awake += delegate(On.RoR2.CombatDirector.orig_Awake orig, CombatDirector self)
             {
                 orig(self);
@@ -43,7 +50,8 @@ namespace FloodWarning.Artifacts
                     {
                         if (!NetworkServer.active) return;
 
-                        CharacterSpawnCard lastAttemptedMonsterCard = self.lastAttemptedMonsterCard.spawnCard as CharacterSpawnCard;
+                        CharacterSpawnCard lastAttemptedMonsterCard =
+                            self.lastAttemptedMonsterCard.spawnCard as CharacterSpawnCard;
 
                         if (lastAttemptedMonsterCard == null || lastAttemptedMonsterCard.noElites) return;
 
@@ -63,18 +71,27 @@ namespace FloodWarning.Artifacts
         {
             if (characterBody == null) return;
 
-            //TrueHonorLevelChance -> If the game can afford to apply another elite type, the chance to do so, default 25%
-            //TrueHonorLevelCumulative -> Adds to the TrueHonorLevelChance each time an elite is applied, default 10%
+            float TrueHonorChance = configFile.Bind("", "TrueHonorChance", 20,
+                "The chance to attempt TrueHonor an any given spawn").Value;
 
-            //TrueHonorProcChance -> Chance for this to run on any given enemy, default 20%
-            float TrueHonorChance = 20;
+            float TrueHonorLevelChance = configFile.Bind("", "TrueHonorLevelChance", 25,
+                "The chance, for each elite buff we can afford, to apply it. I.E. 25% Chance for Blazing").Value;
 
-            //todo: Config this.
-            //How much the base cost should increase, in percent, for each elite modifier.
-            //100 is a 100% increase, meaning 2 elites cost 200% base cost, 3 for 300%.
-            float TrueHonorPerBuffMultiplier = 100f;
+
+            float TrueHonorLevelCumulative = configFile.Bind("", "TrueHonorLevelCumulative", 5f,
+                "The amount TrueHonorLevelChance should change for each elite buff applied.").Value;
+
+            
+
+            float TrueHonorPerBuffMultiplier = configFile.Bind("", "TrueHonorPerBuffMultiplier", 100,
+                "How much the base cost of an entity should be increased, in percent, for each elite buff").Value;
+
             //Turning this into 0-1f.
             float perBuffCostMultiplier = TrueHonorPerBuffMultiplier / 100f;
+
+            //So that we don't spend the entire spawning budget, the elites can only cost this percent of the budget.
+            float percentCostOfCredit = configFile.Bind("", "TrueHonorPerBuffMultiplier", 80,
+                "The percentage of the total spawning budget we can spend on a single enemy with TrueHonor").Value;
 
             if (Run.instance.spawnRng.nextNormalizedFloat * 100 > TrueHonorChance)
                 return;
@@ -83,21 +100,33 @@ namespace FloodWarning.Artifacts
 
             foreach (CombatDirector.EliteTierDef tierDef in eliteTiers)
             foreach (EliteDef eliteDef in tierDef.availableDefs)
+            {
+                if (!eliteDef)
+                    continue;
+                if (!eliteDef.IsAvailable())
+                    continue;
+                if (!eliteDef.eliteEquipmentDef)
+                    continue;
+                if (!eliteDef.eliteEquipmentDef.passiveBuffDef)
+                    continue;
 
-                if (eliteDef && eliteDef.IsAvailable() && eliteDef.eliteEquipmentDef &&
-                    eliteDef.eliteEquipmentDef.passiveBuffDef)
-                {
-                    //Treat card as x% more expensive per buff, cost as normal otherwise.
-                    //Add +1 to get the cost for an additional buff.
-                    float eliteBuffCost = cardCost * (eliteBuffs * perBuffCostMultiplier + 1) * tierDef.costMultiplier;
+                //Treat card as x% more expensive per buff, cost as normal otherwise.
+                //Add +1 to get the cost for the additional buff.
+                float eliteBuffCost = cardCost * (eliteBuffs * perBuffCostMultiplier + 1) * tierDef.costMultiplier;
 
-                    if (eliteBuffCost > monsterCredit)
-                    {
-                        monsterCredit -= eliteBuffCost;
-                        ApplyEliteToBody(eliteDef, characterBody);
-                        eliteBuffs++;
-                    }
-                }
+                //If we can afford this elite buff
+                if (eliteBuffCost > monsterCredit * (100 / percentCostOfCredit))
+                    continue;
+
+                //Test if we are willing to give it this buff via randomness
+                if (Run.instance.spawnRng.nextNormalizedFloat * 100 >
+                    TrueHonorLevelChance + (TrueHonorLevelCumulative * eliteBuffs))
+                    continue;
+
+                monsterCredit -= eliteBuffCost;
+                ApplyEliteToBody(eliteDef, characterBody);
+                eliteBuffs++;
+            }
         }
 
         private static void ApplyEliteToBody(EliteDef eliteDef, CharacterBody characterBody)
