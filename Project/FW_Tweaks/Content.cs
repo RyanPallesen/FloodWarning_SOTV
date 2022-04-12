@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using BepInEx.Configuration;
+using FW_Tweaks.Tweaks;
 using RoR2.ContentManagement;
 
 namespace FloodWarning.Tweaks
@@ -18,7 +19,7 @@ namespace FloodWarning.Tweaks
         // Token: 0x06000002 RID: 2 RVA: 0x00002067 File Offset: 0x00000267
         public IEnumerator LoadStaticContentAsync(LoadStaticContentAsyncArgs args)
         {
-            Artifacts.Create();
+            Tweaks.Create();
             args.ReportProgress(1f);
             yield break;
         }
@@ -38,7 +39,7 @@ namespace FloodWarning.Tweaks
             yield break;
         }
 
-        public static class Artifacts
+        public static class Tweaks
         {
             public static List<TweakStruct> structList = new List<TweakStruct>();
 
@@ -50,6 +51,26 @@ namespace FloodWarning.Tweaks
 
             private static void GenerateTweaks()
             {
+                structList.Add(new TweakStruct()
+                {
+                    tweakName = nameof(ChanceShrinePayoutTweaks),
+                    tweakDescription = "Chance Shrines have better payouts the more failures you get.",
+                    hookCallbacks = new List<Action>(1) { ChanceShrinePayoutTweaks.DoHooks }
+                });
+
+                structList.Add(new TweakStruct()
+                {
+                    tweakName = nameof(SizeTweaks),
+                    tweakDescription = "Boss, Champion and Elite enemies are larger.",
+                    hookCallbacks = new List<Action>(1) { SizeTweaks.DoHooks }
+                });
+
+                structList.Add(new TweakStruct()
+                {
+                    tweakName = nameof(TripleShopDuplicateTweaks),
+                    tweakDescription = "Tries to stop triple shops from having duplicate items",
+                    hookCallbacks = new List<Action>(1) { TripleShopDuplicateTweaks.DoHooks }
+                });
             }
 
             private static void ConfigTweaks()
@@ -72,6 +93,7 @@ namespace FloodWarning.Tweaks
             public struct TweakStruct
             {
                 public string tweakName;
+                public string tweakDescription;
                 public List<Action> hookCallbacks;
             }
         }

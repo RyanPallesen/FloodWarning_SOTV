@@ -8,6 +8,15 @@
     <Reference Include="BepInEx">
       <HintPath>..\..\References\BepInEx\core\BepInEx.dll</HintPath>
     </Reference>
+    <Reference Include="com.unity.multiplayer-hlapi.Runtime">
+      <HintPath>..\..\References\Unity\com.unity.multiplayer-hlapi.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="HGCSharpUtils">
+      <HintPath>..\..\References\Unity\HGCSharpUtils.dll</HintPath>
+    </Reference>
+    <Reference Include="MMHOOK_RoR2">
+      <HintPath>..\..\References\MMHOOK\MMHOOK_RoR2.dll</HintPath>
+    </Reference>
     <Reference Include="R2API">
       <HintPath>..\..\References\R2API\R2API.dll</HintPath>
     </Reference>
@@ -20,10 +29,6 @@
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>..\..\References\Unity\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Tweaks\" />
   </ItemGroup>
 
 </Project>
