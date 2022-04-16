@@ -56,8 +56,6 @@ namespace FloodWarning.StandaloneGummoItemCopy
                     {
                         deployable.gameObject.GetComponent<RoR2.CharacterMaster>().inventory
                             .CopyItemsFrom(self.inventory);
-                        deployable.gameObject.GetComponent<RoR2.CharacterMaster>().inventory
-                            .CopyEquipmentFrom(self.inventory);
                     }
 
                 };

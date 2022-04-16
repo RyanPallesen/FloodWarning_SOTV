@@ -54,7 +54,7 @@ namespace FloodWarning.Artifacts.Artifacts
             CombatDirector.Awake += (orig, self) =>
             {
                 for (int i = 0; i < tempDefs.Count; i++)
-                    if (RunArtifactManager.instance.IsArtifactEnabled(tempDefs[0]))
+                    if (RunArtifactManager.instance.IsArtifactEnabled(tempDefs[i]))
                         self.creditMultiplier *= 2;
 
                 orig(self);
@@ -63,7 +63,7 @@ namespace FloodWarning.Artifacts.Artifacts
             SceneDirector.PopulateScene += (orig, self) =>
             {
                 for (int i = 0; i < tempDefs.Count; i++)
-                    if (RunArtifactManager.instance.IsArtifactEnabled(tempDefs[0]))
+                    if (RunArtifactManager.instance.IsArtifactEnabled(tempDefs[i]))
                     {
                         self.interactableCredit *= 2;
                     }
