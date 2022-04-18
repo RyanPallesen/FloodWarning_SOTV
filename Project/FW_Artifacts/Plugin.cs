@@ -22,7 +22,7 @@ namespace FloodWarning
         public const string PluginGUID = PluginAuthor + "." + PluginName;
         public const string PluginAuthor = "RyanPallesen";
         public const string PluginName = "FW_Artifacts";
-        public const string PluginVersion = "2.0.1";
+        public const string PluginVersion = "2.1.1";
 
         private static List<ArtifactDef> artifactDefs;
         private static List<ArtifactDef> activeArtifacts;

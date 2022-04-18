@@ -12,6 +12,7 @@ using Console = System.Console;
 using MasterCatalog = On.RoR2.MasterCatalog;
 using Resources = FloodWarning.Artifacts.Properties.Resources;
 using Run = On.RoR2.Run;
+using TeleporterInteraction = On.RoR2.TeleporterInteraction;
 
 namespace FloodWarning.Artifacts.Artifacts
 {
@@ -22,6 +23,8 @@ namespace FloodWarning.Artifacts.Artifacts
 
         private static readonly List<DirectorAPI.DirectorCardHolder> trueDissonanceMonsters =
             new List<DirectorAPI.DirectorCardHolder>();
+
+        private static ConfigFile mainConfigFile;
 
         public static List<ArtifactDef> GetDefs()
         {
@@ -41,6 +44,10 @@ namespace FloodWarning.Artifacts.Artifacts
 
         public static void DoConfig()
         {
+            mainConfigFile =
+                new ConfigFile(
+                    Paths.ConfigPath + "\\FloodWarning\\Artifacts\\TrueDissonance.cfg",
+                    true);
         }
 
         public static float GetArbitraryCreditValue(CharacterBody characterBody)
@@ -91,6 +98,25 @@ namespace FloodWarning.Artifacts.Artifacts
         public static void DoHooks()
         {
             DoConfig();
+
+            TeleporterInteraction.OnBossDirectorSpawnedMonsterServer += delegate(
+                TeleporterInteraction.orig_OnBossDirectorSpawnedMonsterServer orig, RoR2.TeleporterInteraction self,
+                GameObject masterObject)
+            {
+                orig(self, masterObject);
+                if (!RunArtifactManager.instance ||
+                    !RunArtifactManager.instance.IsArtifactEnabled(tempDefs[0]))
+                    return;
+
+                if (!mainConfigFile.Bind("",
+                    "shouldSuicide", true,
+                    "Whether or not to kill bosses after a set amount of time").Value)
+                    return;
+
+                masterObject.AddComponent<MasterSuicideOnTimer>().lifeTimer = mainConfigFile.Bind("",
+                    "suicideTimer", 180f,
+                    "The time, in seconds, after which to kill a boss").Value;
+            };
 
             MasterCatalog.Init += delegate(MasterCatalog.orig_Init orig)
             {
